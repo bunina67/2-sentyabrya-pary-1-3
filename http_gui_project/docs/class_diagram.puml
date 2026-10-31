@@ -1,0 +1,49 @@
+@startuml
+skinparam classAttributeIconSize 0
+interface HttpTransport {
+  +get(url, headers=None): Response
+  +post(url, body, content_type, headers=None): Response
+}
+interface RouterInterface { +dispatch(req): Response }
+interface ServerInterface {
+  +start(host, port)
+  +stop()
+}
+class Url {
+  +scheme: str
+  +host: str
+  +port: int
+  +path: str
+  +query: str
+  +parse(value): Url
+}
+class Request { +method: str; +path: str; +version: str; +headers: dict; +body: bytes }
+class Response { +status: int; +reason: str; +version: str; +headers: dict; +body: bytes }
+class Parser { +parse_request(raw): Request; +parse_response(raw): Response; +decode_chunked(data): bytes }
+class Serializer { +serialize_request(req): bytes; +serialize_response(res): bytes }
+class Socket { +send_all(data); +recv(n); +close() }
+class TcpClient { +exchange(url, payload): bytes }
+class HttpClient { +set_timeout(ms); +get(url); +post(url, body, content_type) }
+class Router { +route(method, path, handler); +dispatch(req) }
+class HttpServer { +start(host, port); +stop(); -_serve(); -_handle(conn, addr) }
+class App
+class ClientTab
+class ServerTab
+HttpTransport <|.. HttpClient
+RouterInterface <|.. Router
+ServerInterface <|.. HttpServer
+HttpClient --> Url
+HttpClient --> Parser
+HttpClient --> Serializer
+HttpClient --> TcpClient
+Parser ..> Request
+Parser ..> Response
+Serializer ..> Request
+Serializer ..> Response
+TcpClient --> Socket
+HttpServer --> Parser
+HttpServer --> Serializer
+HttpServer --> Router
+App o-- ClientTab
+App o-- ServerTab
+@enduml
